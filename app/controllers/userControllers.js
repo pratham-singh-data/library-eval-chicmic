@@ -4,12 +4,14 @@ const { hashPassword, } = require('../helpers/hashPassword');
 const { generateLocalSendResponse, } = require('../helpers/responder');
 const { findOneInUsers,
     saveDocumentInUsers,
-    saveDocumentInTokens, } = require('../services');
-const { TOKEN_EXPIRY_TIME, } = require('../utils/constants');
+    saveDocumentInTokens,
+    updateInUsersById, } = require('../services');
+const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
 const { EMAIL_ALREADY_IN_USE,
     DATA_SUCCESSFULLY_CREATED,
     CREDENTIALS_COULD_NOT_BE_VERIFIED,
-    SUCCESSFUL_LOGIN, } = require('../utils/messages');
+    SUCCESSFUL_LOGIN,
+    DATA_SUCCESSFULLY_UPDATED, } = require('../utils/messages');
 
 /** Register new user in database
  * @param {Request} req Express request object
@@ -46,6 +48,7 @@ async function registerUser(req, res, next) {
 
         await saveDocumentInTokens({
             token,
+            type: TOKEN_TYPES.LOGIN,
             userId: savedData._id,
         });
 
@@ -91,6 +94,7 @@ async function loginUser(req, res, next) {
 
         await saveDocumentInTokens({
             token,
+            type: TOKEN_TYPES.LOGIN,
             userId: userData._id,
         });
 
@@ -104,8 +108,49 @@ async function loginUser(req, res, next) {
     }
 }
 
+/** Updates an existing user
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function updateUser(req, res, next) {
+    const { body, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    body.password = hashPassword(body.password);
+
+    try {
+        // check if email is already regsiterred by any user other the self
+        if (await findOneInUsers({
+            email: body.email,
+            _id: {
+                $ne: token.id,
+            },
+        })) {
+            localResponder({
+                statusCode: 403,
+                message: EMAIL_ALREADY_IN_USE,
+            });
+
+            return;
+        }
+
+        await updateInUsersById(token.id, {
+            $set: body,
+        });
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_UPDATED,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 
 module.exports = {
     registerUser,
     loginUser,
+    updateUser,
 };

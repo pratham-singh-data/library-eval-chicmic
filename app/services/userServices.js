@@ -1,7 +1,8 @@
 const { userModel, } = require('../models');
 const { saveDocument,
     findById,
-    findOne, } = require('./serviceOperators/operators');
+    findOne,
+    updateById, } = require('./serviceOperators/operators');
 
 /** Saves a document in users model
  * @param {Object} doc Document to store in model
@@ -27,8 +28,17 @@ async function findOneInUsers(searchQuery, projectionQuery) {
     return await findOne(userModel, searchQuery, projectionQuery);
 }
 
+/** updates id element from users model
+ * @param {String} id id of element to update
+ * @param {Object} updateQuery update query for collection
+ */
+async function updateInUsersById(id, updateQuery) {
+    await updateById(userModel, id, updateQuery);
+}
+
 module.exports = {
     saveDocumentInUsers,
     findFromUsersById,
     findOneInUsers,
+    updateInUsersById,
 };

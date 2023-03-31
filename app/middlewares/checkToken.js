@@ -44,7 +44,7 @@ function checkToken(...types) {
         }
 
         // check that given is a login token
-        if (! types.includes(tokenData.tokenType)) {
+        if (! types.includes(tokenData.type)) {
             localResponder({
                 statusCode: 403,
                 message: INVALID_TOKENTYPE,
