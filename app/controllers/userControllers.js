@@ -5,13 +5,15 @@ const { generateLocalSendResponse, } = require('../helpers/responder');
 const { findOneInUsers,
     saveDocumentInUsers,
     saveDocumentInTokens,
-    updateInUsersById, } = require('../services');
+    updateInUsersById,
+    findFromUsersById, } = require('../services');
 const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
 const { EMAIL_ALREADY_IN_USE,
     DATA_SUCCESSFULLY_CREATED,
     CREDENTIALS_COULD_NOT_BE_VERIFIED,
     SUCCESSFUL_LOGIN,
-    DATA_SUCCESSFULLY_UPDATED, } = require('../utils/messages');
+    DATA_SUCCESSFULLY_UPDATED,
+    CANNOT_ACCESS_DATA, } = require('../utils/messages');
 
 /** Register new user in database
  * @param {Request} req Express request object
@@ -148,9 +150,51 @@ async function updateUser(req, res, next) {
     }
 }
 
+/** Reads an existing user (Can be done by self and friends)
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function readUser(req, res, next) {
+    const { params: { id, }, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const targetUserData = await findFromUsersById(id);
+
+        // if reading self; no problem
+        if (String(targetUserData._id) === token.id) {
+            localResponder({
+                statusCode: 200,
+                data: targetUserData,
+            });
+
+            return;
+        }
+
+        // check if reading friend, if so: allow
+        if (targetUserData.friends.includes(token.id)) {
+            localResponder({
+                statusCode: 200,
+                data: targetUserData,
+            });
+
+            return;
+        }
+
+        // cannot read
+        localResponder({
+            statusCode: 401,
+            message: CANNOT_ACCESS_DATA,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
 
 module.exports = {
     registerUser,
     loginUser,
     updateUser,
+    readUser,
 };

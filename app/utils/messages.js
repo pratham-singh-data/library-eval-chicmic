@@ -7,4 +7,5 @@ module.exports = {
     DATA_SUCCESSFULLY_UPDATED: `Data successfully updated.`,
     SUCCESSFUL_LOGIN: `User successfully logged in.`,
     CANNOT_BE_CAST_TO_OBJECTID: `Cannot cast to ObjectId`,
+    CANNOT_ACCESS_DATA: `You cannot access read this data.`,
 };
