@@ -1,8 +1,10 @@
-const { generateLocalSendResponse, } = require('../helpers/responder');
+const { generateLocalSendResponse,
+    sendResponse, } = require('../helpers/responder');
 const { findFromBooksById,
     findFromUsersById,
     saveDocumentInBooks,
-    findOneInUsers, } = require('../services');
+    findOneInUsers,
+    runAggregateOnBooks, } = require('../services');
 const { BOOK_ALREADY_REGISTERED,
     CANNOT_ACCESS_DATA,
     ONE_AUTHOR_NOT_REGISTERED,
@@ -111,7 +113,36 @@ async function readBook(req, res, next) {
     }
 }
 
+
+/** Reads all books
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function listAllBooks(req, res, next) {
+    try {
+        const data = await runAggregateOnBooks([
+            {
+                $lookup: {
+                    from: `users`,
+                    foreignField: `_id`,
+                    localField: `authors`,
+                    as: `authors`,
+                },
+            },
+        ]);
+
+        sendResponse(res, {
+            statusCode: 200,
+            data,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerBook,
     readBook,
+    listAllBooks,
 };

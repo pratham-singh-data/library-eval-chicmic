@@ -1,5 +1,7 @@
 const { Router, } = require('express');
-const { registerBook, readBook, } = require('../controllers/bookController');
+const { registerBook,
+    readBook,
+    listAllBooks, } = require('../controllers/bookController');
 const { checkToken, } = require('../middlewares/checkToken');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { TOKEN_TYPES, } = require('../utils/constants');
@@ -13,6 +15,9 @@ bookRouter.post(`/`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateBody(registerBookValidator),
     registerBook);
+bookRouter.get(`/`,
+    checkToken(TOKEN_TYPES.LOGIN),
+    listAllBooks);
 bookRouter.get(`/:id`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleBookIdValidator),
