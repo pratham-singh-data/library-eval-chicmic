@@ -8,4 +8,7 @@ module.exports = {
     SUCCESSFUL_LOGIN: `User successfully logged in.`,
     CANNOT_BE_CAST_TO_OBJECTID: `Cannot cast to ObjectId`,
     CANNOT_ACCESS_DATA: `You cannot access read this data.`,
+    BOOK_ALREADY_REGISTERED: `Book is already registered in the database.`,
+    ONE_AUTHOR_NOT_REGISTERED: `One of the authors is not regsitered.`,
+    ONLY_AUTHOR_CAN_REGISTER_BOOKS: `Only an author can register books`,
 };
