@@ -13,7 +13,8 @@ const { EMAIL_ALREADY_IN_USE,
     CREDENTIALS_COULD_NOT_BE_VERIFIED,
     SUCCESSFUL_LOGIN,
     DATA_SUCCESSFULLY_UPDATED,
-    CANNOT_ACCESS_DATA, } = require('../utils/messages');
+    CANNOT_ACCESS_DATA,
+    NON_EXISTENT_USER, } = require('../utils/messages');
 
 /** Register new user in database
  * @param {Request} req Express request object
@@ -161,6 +162,15 @@ async function readUser(req, res, next) {
 
     try {
         const targetUserData = await findFromUsersById(id);
+
+        if (! targetUserData) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_USER,
+            });
+
+            return;
+        }
 
         // if reading self; no problem
         if (String(targetUserData._id) === token.id) {

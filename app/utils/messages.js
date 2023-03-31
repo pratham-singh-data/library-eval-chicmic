@@ -11,4 +11,6 @@ module.exports = {
     BOOK_ALREADY_REGISTERED: `Book is already registered in the database.`,
     ONE_AUTHOR_NOT_REGISTERED: `One of the authors is not regsitered.`,
     ONLY_AUTHOR_CAN_REGISTER_BOOKS: `Only an author can register books`,
+    NON_EXISTENT_BOOK: `Given book does not exist.`,
+    NON_EXISTENT_USER: `Given user does not exist.`,
 };

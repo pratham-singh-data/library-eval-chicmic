@@ -7,7 +7,8 @@ const { BOOK_ALREADY_REGISTERED,
     CANNOT_ACCESS_DATA,
     ONE_AUTHOR_NOT_REGISTERED,
     ONLY_AUTHOR_CAN_REGISTER_BOOKS,
-    DATA_SUCCESSFULLY_CREATED, } = require('../utils/messages');
+    DATA_SUCCESSFULLY_CREATED,
+    NON_EXISTENT_BOOK, } = require('../utils/messages');
 
 /** Reads an existing user (Can be done by self and friends)
  * @param {Request} req Express request object
@@ -80,6 +81,37 @@ async function registerBook(req, res, next) {
     }
 }
 
+/** Reads an existing book
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function readBook(req, res, next) {
+    const { params: { id, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const bookData = await findFromBooksById(id);
+
+        if (! bookData) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_BOOK,
+            });
+
+            return;
+        }
+
+        localResponder({
+            statusCode: 200,
+            data: bookData,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerBook,
+    readBook,
 };
