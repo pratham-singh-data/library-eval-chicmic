@@ -14,7 +14,8 @@
     "eslint-config-google": "^0.14.0"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "eslint": "eslint *.js app/*/*.js"
   },
   "name": "library-eval-task",
   "version": "1.0.0",

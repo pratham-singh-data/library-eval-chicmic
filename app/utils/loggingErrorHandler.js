@@ -1,5 +1,5 @@
 const { writeFileSync, } = require(`fs`);
-const { ERROR_LOG_DIRECTORY_URL } = require('./constants');
+const { ERROR_LOG_DIRECTORY_URL, } = require('./constants');
 const { error, } = require('./logger');
 
 /** Logs error to console
