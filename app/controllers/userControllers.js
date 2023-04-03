@@ -366,6 +366,42 @@ async function approveRequest(req, res, next) {
     }
 }
 
+/** Checks sent requests
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function checkSentRequests(req, res, next) {
+    const { headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const data = await runAggregateOnFriends([
+            {
+                $match: {
+                    sender: new ObjectId(token.id),
+                },
+            },
+
+            {
+                $lookup: {
+                    from: `users`,
+                    localField: `reciever`,
+                    foreignField: `_id`,
+                    as: `reciever`,
+                },
+            },
+        ]);
+
+        localResponder({
+            statusCode: 200,
+            data,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
@@ -374,4 +410,5 @@ module.exports = {
     requestFriend,
     listRequests,
     approveRequest,
+    checkSentRequests,
 };

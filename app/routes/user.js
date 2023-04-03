@@ -5,7 +5,8 @@ const { registerUser,
     readUser,
     requestFriend,
     listRequests,
-    approveRequest, } = require('../controllers/userControllers');
+    approveRequest,
+    checkSentRequests, } = require('../controllers/userControllers');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { checkToken, } = require('../middlewares/checkToken');
 const { TOKEN_TYPES, } = require('../utils/constants');
@@ -36,6 +37,9 @@ userRouter.patch(`/request/:id/approve`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),
     approveRequest);
+userRouter.get(`/request/checkSent`,
+    checkToken(TOKEN_TYPES.LOGIN),
+    checkSentRequests);
 
 module.exports = {
     userRouter,
