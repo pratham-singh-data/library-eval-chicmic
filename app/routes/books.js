@@ -3,12 +3,14 @@ const { registerBook,
     readBook,
     listAllBooks,
     purchaseBook,
-    deleteBook, } = require('../controllers/bookController');
+    deleteBook,
+    updateBook, } = require('../controllers/bookController');
 const { checkToken, } = require('../middlewares/checkToken');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { TOKEN_TYPES, } = require('../utils/constants');
 const { registerBookValidator,
-    soleBookIdValidator, } = require('../validators');
+    soleBookIdValidator,
+    updateBookValidator, } = require('../validators');
 
 // eslint-disable-next-line new-cap
 const bookRouter = Router();
@@ -32,6 +34,11 @@ bookRouter.delete(`/:id`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleBookIdValidator),
     deleteBook);
+bookRouter.put(`/:id`,
+    checkToken(TOKEN_TYPES.LOGIN),
+    validateParams(soleBookIdValidator),
+    validateBody(updateBookValidator),
+    updateBook);
 
 module.exports = {
     bookRouter,

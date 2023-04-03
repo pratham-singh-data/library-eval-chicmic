@@ -197,6 +197,16 @@ async function deleteBook(req, res, next) {
     try {
         const bookData = await findFromBooksById(id);
 
+        // check if book exists
+        if (! bookData || bookData.deleted) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_BOOK,
+            });
+
+            return;
+        }
+
         // this operation may only be performed by an author of this book
         if (! bookData.authors.includes(token.id)) {
             localResponder({
@@ -222,10 +232,56 @@ async function deleteBook(req, res, next) {
     }
 }
 
+/** Updates book of given id
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function updateBook(req, res, next) {
+    const { params: { id, }, body, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const bookData = await findFromBooksById(id);
+
+        // check if book exists
+        if (! bookData || bookData.deleted) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_BOOK,
+            });
+
+            return;
+        }
+
+        // this operation may only be performed by an author of this book
+        if (! bookData.authors.includes(token.id)) {
+            localResponder({
+                statusCode: 401,
+                message: CANNOT_ACCESS_DATA,
+            });
+
+            return;
+        }
+
+        updateInBooksById(id, {
+            $set: body,
+        });
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_UPDATED,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerBook,
     readBook,
     listAllBooks,
     purchaseBook,
     deleteBook,
+    updateBook,
 };

@@ -3,6 +3,7 @@ const { loginValidator, } = require(`./loginValidator`);
 const { soleIdValidator, } = require(`./soleIdValidator`);
 const { registerBookValidator, } = require(`./registerBookValidator`);
 const { soleBookIdValidator, } = require(`./soleBookIdValidator`);
+const { updateBookValidator, } = require(`./updateBookValidator`);
 
 module.exports = {
     signUpValidator,
@@ -10,4 +11,5 @@ module.exports = {
     soleIdValidator,
     registerBookValidator,
     soleBookIdValidator,
+    updateBookValidator,
 };
