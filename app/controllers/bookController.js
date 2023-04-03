@@ -4,13 +4,15 @@ const { findFromBooksById,
     findFromUsersById,
     saveDocumentInBooks,
     findOneInUsers,
-    runAggregateOnBooks, } = require('../services');
+    runAggregateOnBooks,
+    updateInUsersById, } = require('../services');
 const { BOOK_ALREADY_REGISTERED,
     CANNOT_ACCESS_DATA,
     ONE_AUTHOR_NOT_REGISTERED,
     ONLY_AUTHOR_CAN_REGISTER_BOOKS,
     DATA_SUCCESSFULLY_CREATED,
-    NON_EXISTENT_BOOK, } = require('../utils/messages');
+    NON_EXISTENT_BOOK,
+    DATA_SUCCESSFULLY_UPDATED, } = require('../utils/messages');
 
 /** Reads an existing user (Can be done by self and friends)
  * @param {Request} req Express request object
@@ -95,7 +97,7 @@ async function readBook(req, res, next) {
     try {
         const bookData = await findFromBooksById(id);
 
-        if (! bookData) {
+        if (! bookData || bookData.deleted) {
             localResponder({
                 statusCode: 400,
                 message: NON_EXISTENT_BOOK,
@@ -141,8 +143,46 @@ async function listAllBooks(req, res, next) {
     }
 }
 
+/** Purchase book of given id
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function purchaseBook(req, res, next) {
+    const { params: { id, }, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const bookData = await findFromBooksById(id);
+
+        if (! bookData || bookData.deleted) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_BOOK,
+            });
+
+            return;
+        }
+
+        // user can purchase the same book multiple times
+        await updateInUsersById(token.id, {
+            $push: {
+                purchasedBooks: bookData.id,
+            },
+        });
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_UPDATED,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerBook,
     readBook,
     listAllBooks,
+    purchaseBook,
 };

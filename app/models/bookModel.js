@@ -18,6 +18,10 @@ const bookSchema = new Schema({
         required: true,
     },
     authors: [ ObjectId, ],
+    deleted: {
+        type: Boolean,
+        default: false,
+    },
 }, {
     timestamps: true,
 });

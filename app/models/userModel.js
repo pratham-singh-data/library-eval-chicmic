@@ -24,7 +24,7 @@ const userSchema = new Schema({
         type: String,
         default: DEFAULT_USER_TYPE,
     },
-    purchasedBooks: [ ObjectId, ],
+    purchasedBooks: [ String, ],
     requestedFriends: [ ObjectId, ],
     friends: [ ObjectId, ],
 });
