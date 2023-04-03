@@ -26,4 +26,5 @@ module.exports = {
         `.jpg`, '.jpeg', `.png`, `.gif`, `.webp`,
     ],
     ERROR_LOG_DIRECTORY_URL: `./database/logs/errors`,
+    HIT_LOG_FILE_URL: `./database/logs/hits.log`,
 };

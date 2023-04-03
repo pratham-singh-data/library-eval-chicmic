@@ -1,6 +1,7 @@
 const { json, } = require('express');
 const { notFound, } = require('../controllers/notFoundController');
 const { handleError, } = require('../middlewares/handleError');
+const { hitLogger, } = require('../middlewares/hitLogger');
 const { userRouter, bookRouter, uploadRouter, } = require('../routes');
 
 /** Express startup function
@@ -8,6 +9,7 @@ const { userRouter, bookRouter, uploadRouter, } = require('../routes');
  */
 function expressStartup(app) {
     app.use(json());
+    app.use(hitLogger);
 
     app.use(`/user`, userRouter);
     app.use(`/book`, bookRouter);
