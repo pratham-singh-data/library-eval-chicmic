@@ -5,14 +5,16 @@ const { findFromBooksById,
     saveDocumentInBooks,
     findOneInUsers,
     runAggregateOnBooks,
-    updateInUsersById, } = require('../services');
+    updateInUsersById,
+    updateInBooksById, } = require('../services');
 const { BOOK_ALREADY_REGISTERED,
     CANNOT_ACCESS_DATA,
     ONE_AUTHOR_NOT_REGISTERED,
     ONLY_AUTHOR_CAN_REGISTER_BOOKS,
     DATA_SUCCESSFULLY_CREATED,
     NON_EXISTENT_BOOK,
-    DATA_SUCCESSFULLY_UPDATED, } = require('../utils/messages');
+    DATA_SUCCESSFULLY_UPDATED,
+    DATA_SUCCESSFULLY_DELETED, } = require('../utils/messages');
 
 /** Reads an existing user (Can be done by self and friends)
  * @param {Request} req Express request object
@@ -183,9 +185,47 @@ async function purchaseBook(req, res, next) {
     }
 }
 
+/** Delete book of given id
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function deleteBook(req, res, next) {
+    const { params: { id, }, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const bookData = await findFromBooksById(id);
+
+        // this operation may only be performed by an author of this book
+        if (! bookData.authors.includes(token.id)) {
+            localResponder({
+                statusCode: 401,
+                message: CANNOT_ACCESS_DATA,
+            });
+
+            return;
+        }
+
+        await updateInBooksById(id, {
+            $set: {
+                deleted: true,
+            },
+        });
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_DELETED,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerBook,
     readBook,
     listAllBooks,
     purchaseBook,
+    deleteBook,
 };

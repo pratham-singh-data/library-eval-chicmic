@@ -2,7 +2,8 @@ const { Router, } = require('express');
 const { registerBook,
     readBook,
     listAllBooks,
-    purchaseBook, } = require('../controllers/bookController');
+    purchaseBook,
+    deleteBook, } = require('../controllers/bookController');
 const { checkToken, } = require('../middlewares/checkToken');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { TOKEN_TYPES, } = require('../utils/constants');
@@ -27,6 +28,10 @@ bookRouter.patch(`/:id/purchase`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleBookIdValidator),
     purchaseBook);
+bookRouter.delete(`/:id`,
+    checkToken(TOKEN_TYPES.LOGIN),
+    validateParams(soleBookIdValidator),
+    deleteBook);
 
 module.exports = {
     bookRouter,

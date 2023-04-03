@@ -5,6 +5,7 @@ module.exports = {
     EMAIL_ALREADY_IN_USE: `This email is already in use`,
     DATA_SUCCESSFULLY_CREATED: `Data successfully created.`,
     DATA_SUCCESSFULLY_UPDATED: `Data successfully updated.`,
+    DATA_SUCCESSFULLY_DELETED: `Data successfully deleted.`,
     SUCCESSFUL_LOGIN: `User successfully logged in.`,
     CANNOT_BE_CAST_TO_OBJECTID: `Cannot cast to ObjectId`,
     CANNOT_ACCESS_DATA: `You cannot access read this data.`,

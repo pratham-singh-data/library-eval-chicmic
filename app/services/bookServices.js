@@ -1,7 +1,8 @@
 const { bookModel, } = require('../models/bookModel');
 const { saveDocument,
     findById,
-    runAggregate, } = require('./serviceOperators/operators');
+    runAggregate,
+    updateById, } = require('./serviceOperators/operators');
 
 /** Saves a document in books model
  * @param {Object} doc Document to store in model
@@ -26,8 +27,17 @@ async function runAggregateOnBooks(pipeline) {
     return await runAggregate(bookModel, pipeline);
 }
 
+/** updates id element from books model
+ * @param {String} id id of element to update
+ * @param {Object} updateQuery update query for collection
+ */
+async function updateInBooksById(id, updateQuery) {
+    await updateById(bookModel, id, updateQuery);
+}
+
 module.exports = {
     saveDocumentInBooks,
     findFromBooksById,
     runAggregateOnBooks,
+    updateInBooksById,
 };
