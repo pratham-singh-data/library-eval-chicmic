@@ -6,7 +6,9 @@ const { findOneInUsers,
     saveDocumentInUsers,
     saveDocumentInTokens,
     updateInUsersById,
-    findFromUsersById, } = require('../services');
+    findFromUsersById,
+    saveDocumentInFriends,
+    findOneInFriends, } = require('../services');
 const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
 const { EMAIL_ALREADY_IN_USE,
     DATA_SUCCESSFULLY_CREATED,
@@ -14,7 +16,9 @@ const { EMAIL_ALREADY_IN_USE,
     SUCCESSFUL_LOGIN,
     DATA_SUCCESSFULLY_UPDATED,
     CANNOT_ACCESS_DATA,
-    NON_EXISTENT_USER, } = require('../utils/messages');
+    NON_EXISTENT_USER,
+    NO_SELF_FRIEND,
+    DUPLICATE_FRIEND_REQUEST, } = require('../utils/messages');
 
 /** Register new user in database
  * @param {Request} req Express request object
@@ -202,9 +206,83 @@ async function readUser(req, res, next) {
     }
 }
 
+/** Registers a friend request
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function requestFriend(req, res, next) {
+    const { params: { id, }, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    // cannot send self a friend request
+    if (token.id === id) {
+        localResponder({
+            statusCode: 400,
+            message: NO_SELF_FRIEND,
+        });
+
+        return;
+    }
+
+    try {
+        // check that the other user exists
+        const targetUserData = await findFromUsersById(id);
+
+        if (! targetUserData) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_USER,
+            });
+
+            return;
+        }
+
+        // check if friend request is already registered
+        if (await findOneInFriends({
+            $or: [
+                {
+                    sender: token.id,
+                    reciever: id,
+                },
+
+                {
+                    reciever: token.id,
+                    sender: id,
+                },
+            ],
+        })) {
+            localResponder({
+                statusCode: 403,
+                message: DUPLICATE_FRIEND_REQUEST,
+            });
+
+            return;
+        }
+
+        // generate data
+        const data = {
+            sender: token.id,
+            reciever: id,
+            approved: false,
+        };
+
+        const savedData = await saveDocumentInFriends(data);
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_CREATED,
+            savedData,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
     updateUser,
     readUser,
+    requestFriend,
 };

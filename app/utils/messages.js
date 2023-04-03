@@ -14,4 +14,6 @@ module.exports = {
     ONLY_AUTHOR_CAN_REGISTER_BOOKS: `Only an author can register books`,
     NON_EXISTENT_BOOK: `Given book does not exist.`,
     NON_EXISTENT_USER: `Given user does not exist.`,
+    NO_SELF_FRIEND: `Friend cannot be self.`,
+    DUPLICATE_FRIEND_REQUEST: `Duplicate friend request detected.`,
 };

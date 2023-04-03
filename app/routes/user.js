@@ -2,7 +2,8 @@ const { Router, } = require('express');
 const { registerUser,
     loginUser,
     updateUser,
-    readUser, } = require('../controllers/userControllers');
+    readUser,
+    requestFriend, } = require('../controllers/userControllers');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { checkToken, } = require('../middlewares/checkToken');
 const { TOKEN_TYPES, } = require('../utils/constants');
@@ -22,6 +23,10 @@ userRouter.get(`/:id`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),
     readUser);
+userRouter.post(`/:id/request`,
+    checkToken(TOKEN_TYPES.LOGIN),
+    validateParams(soleIdValidator),
+    requestFriend);
 
 module.exports = {
     userRouter,
