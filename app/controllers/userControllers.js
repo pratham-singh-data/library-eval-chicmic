@@ -183,14 +183,14 @@ async function readUser(req, res, next) {
         }
 
         // check if reading friend, if so: allow
-        if (targetUserData.friends.includes(token.id)) {
-            localResponder({
-                statusCode: 200,
-                data: targetUserData,
-            });
+        // if (targetUserData.friends.includes(token.id)) {
+        //     localResponder({
+        //         statusCode: 200,
+        //         data: targetUserData,
+        //     });
 
-            return;
-        }
+        //     return;
+        // }
 
         // cannot read
         localResponder({

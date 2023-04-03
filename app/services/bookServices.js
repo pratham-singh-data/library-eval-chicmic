@@ -1,4 +1,4 @@
-const { bookModel, } = require('../models/bookModel');
+const { bookModel, } = require('../models');
 const { saveDocument,
     findById,
     runAggregate,
