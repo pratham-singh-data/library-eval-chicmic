@@ -91,13 +91,16 @@ async function registerBook(req, res, next) {
  * @param {Function} next Express next function
  */
 async function readBook(req, res, next) {
-    const { params: { id, }, } = req;
+    const { params: { id, }, headers: { token, }, } = req;
     const localResponder = generateLocalSendResponse(res);
 
     try {
+        const userData = await findFromUsersById(token.id);
         const bookData = await findFromBooksById(id);
 
-        if (! bookData || bookData.deleted) {
+        // user can still read a deleted book if they previously purchased it
+        if (! bookData || ( bookData.deleted &&
+                        ! userData.purchasedBooks.includes(bookData._id) )) {
             localResponder({
                 statusCode: 400,
                 message: NON_EXISTENT_BOOK,
