@@ -25,4 +25,5 @@ module.exports = {
     ALLOWED_FILE_EXTENSIONS: [
         `.jpg`, '.jpeg', `.png`, `.gif`, `.webp`,
     ],
+    ERROR_LOG_DIRECTORY_URL: `./database/logs/errors`,
 };
