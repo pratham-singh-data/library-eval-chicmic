@@ -8,8 +8,10 @@ const { findOneInUsers,
     updateInUsersById,
     findFromUsersById,
     saveDocumentInFriends,
-    findOneInFriends, } = require('../services');
+    findOneInFriends,
+    runAggregateOnFriends, } = require('../services');
 const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
+const { Types: { ObjectId, }, } = require(`mongoose`);
 const { EMAIL_ALREADY_IN_USE,
     DATA_SUCCESSFULLY_CREATED,
     CREDENTIALS_COULD_NOT_BE_VERIFIED,
@@ -279,10 +281,57 @@ async function requestFriend(req, res, next) {
     }
 }
 
+/** Lists all requests of the current user
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function listRequests(req, res, next) {
+    const { headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
+
+    try {
+        const data = await runAggregateOnFriends([
+            {
+                $match: {
+                    reciever: new ObjectId(token.id),
+                },
+            },
+
+            {
+                $lookup: {
+                    from: `users`,
+                    localField: `sender`,
+                    foreignField: `_id`,
+                    as: `sender`,
+                },
+            },
+        ]);
+
+        localResponder({
+            statusCode: 200,
+            data,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
+/** Approves or Disapproves Id request
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function approveRequest(req, res, next) {
+
+}
+
 module.exports = {
     registerUser,
     loginUser,
     updateUser,
     readUser,
     requestFriend,
+    listRequests,
+    approveRequest,
 };

@@ -1,5 +1,7 @@
 const { friendModel, } = require('../models');
-const { saveDocument, findOne, } = require('./serviceOperators/operators');
+const { saveDocument,
+    findOne,
+    runAggregate, } = require('./serviceOperators/operators');
 
 /** Saves a document in friends model
  * @param {Object} doc Document to store in model
@@ -17,7 +19,16 @@ async function findOneInFriends(searchQuery, projectionQuery) {
     return findOne(friendModel, searchQuery, projectionQuery);
 }
 
+/** Runs an aggregation pipeline on the friends model
+ * @param {Array} pipeline aggregation pipeline to run
+ * @return {Object} Result of operation
+ */
+async function runAggregateOnFriends(pipeline) {
+    return await runAggregate(friendModel, pipeline);
+}
+
 module.exports = {
     saveDocumentInFriends,
     findOneInFriends,
+    runAggregateOnFriends,
 };
