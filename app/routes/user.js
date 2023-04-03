@@ -35,7 +35,7 @@ userRouter.post(`/:id/request`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),
     requestFriend);
-userRouter.patch(`/request/:id/approve`,
+userRouter.patch(`/request/:id/:approval`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),
     approveRequest);

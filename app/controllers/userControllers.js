@@ -14,7 +14,9 @@ const { findOneInUsers,
     findFromFriendsById,
     updateInFriendsById,
     findInUsers, } = require('../services');
-const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
+const { TOKEN_EXPIRY_TIME,
+    TOKEN_TYPES,
+    FRIEND_REQUEST_STATUS, } = require('../utils/constants');
 const { Types: { ObjectId, }, } = require(`mongoose`);
 const { EMAIL_ALREADY_IN_USE,
     DATA_SUCCESSFULLY_CREATED,
@@ -283,7 +285,7 @@ async function requestFriend(req, res, next) {
         const data = {
             sender: token.id,
             reciever: id,
-            approved: false,
+            status: FRIEND_REQUEST_STATUS.PENDING,
         };
 
         const savedData = await saveDocumentInFriends(data);
@@ -312,6 +314,7 @@ async function listRequests(req, res, next) {
             {
                 $match: {
                     reciever: new ObjectId(token.id),
+                    status: FRIEND_REQUEST_STATUS.PENDING,
                 },
             },
 
@@ -340,7 +343,7 @@ async function listRequests(req, res, next) {
  * @param {Function} next Express next function
  */
 async function approveRequest(req, res, next) {
-    const { params: { id, }, headers: { token, }, } = req;
+    const { params: { id, approval, }, headers: { token, }, } = req;
     const localResponder = generateLocalSendResponse(res);
 
     try {
@@ -365,9 +368,12 @@ async function approveRequest(req, res, next) {
             return;
         }
 
+        // reciever can alter state
         await updateInFriendsById(id, {
             $set: {
-                approved: true,
+                FRIEND_REQUEST_STATUS: approval ?
+                    FRIEND_REQUEST_STATUS.APPROVED :
+                    FRIEND_REQUEST_STATUS.REJECTED,
             },
         });
 

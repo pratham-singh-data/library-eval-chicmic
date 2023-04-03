@@ -1,4 +1,5 @@
 const { Schema, model, Types: { ObjectId, }, } = require('mongoose');
+const { FRIEND_REQUEST_STATUS, } = require('../utils/constants');
 
 const friendSchema = new Schema({
     sender: {
@@ -9,9 +10,9 @@ const friendSchema = new Schema({
         type: ObjectId,
         required: true,
     },
-    approved: {
-        type: Boolean,
-        default: false,
+    status: {
+        type: String,
+        default: FRIEND_REQUEST_STATUS.PENDING,
     },
 }, {
     timestamps: true,
