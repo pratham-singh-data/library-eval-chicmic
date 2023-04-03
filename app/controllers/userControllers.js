@@ -9,7 +9,9 @@ const { findOneInUsers,
     findFromUsersById,
     saveDocumentInFriends,
     findOneInFriends,
-    runAggregateOnFriends, } = require('../services');
+    runAggregateOnFriends,
+    findFromFriendsById,
+    updateInFriendsById, } = require('../services');
 const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
 const { Types: { ObjectId, }, } = require(`mongoose`);
 const { EMAIL_ALREADY_IN_USE,
@@ -20,7 +22,8 @@ const { EMAIL_ALREADY_IN_USE,
     CANNOT_ACCESS_DATA,
     NON_EXISTENT_USER,
     NO_SELF_FRIEND,
-    DUPLICATE_FRIEND_REQUEST, } = require('../utils/messages');
+    DUPLICATE_FRIEND_REQUEST,
+    NON_EXISTENT_REQUEST, } = require('../utils/messages');
 
 /** Register new user in database
  * @param {Request} req Express request object
@@ -323,7 +326,44 @@ async function listRequests(req, res, next) {
  * @param {Function} next Express next function
  */
 async function approveRequest(req, res, next) {
+    const { params: { id, }, headers: { token, }, } = req;
+    const localResponder = generateLocalSendResponse(res);
 
+    try {
+        const requestData = await findFromFriendsById(id);
+
+        if (! requestData) {
+            localResponder({
+                statusCode: 400,
+                message: NON_EXISTENT_REQUEST,
+            });
+
+            return;
+        }
+
+        // do not allow if user is not the reciever
+        if (String(requestData.reciever) !== token.id) {
+            localResponder({
+                statusCode: 401,
+                message: CANNOT_ACCESS_DATA,
+            });
+
+            return;
+        }
+
+        await updateInFriendsById(id, {
+            $set: {
+                approved: true,
+            },
+        });
+
+        localResponder({
+            statusCode: 200,
+            message: DATA_SUCCESSFULLY_UPDATED,
+        });
+    } catch (err) {
+        next(err);
+    }
 }
 
 module.exports = {

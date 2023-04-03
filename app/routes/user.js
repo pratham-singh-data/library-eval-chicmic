@@ -11,8 +11,7 @@ const { checkToken, } = require('../middlewares/checkToken');
 const { TOKEN_TYPES, } = require('../utils/constants');
 const { signUpValidator,
     loginValidator,
-    soleIdValidator,
-    requestApprovalValidator, } = require('../validators');
+    soleIdValidator, } = require('../validators');
 
 // eslint-disable-next-line new-cap
 const userRouter = Router();
@@ -33,9 +32,9 @@ userRouter.post(`/:id/request`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),
     requestFriend);
-userRouter.patch(`/request/:id/:approval`,
+userRouter.patch(`/request/:id/approve`,
     checkToken(TOKEN_TYPES.LOGIN),
-    validateParams(requestApprovalValidator),
+    validateParams(soleIdValidator),
     approveRequest);
 
 module.exports = {
