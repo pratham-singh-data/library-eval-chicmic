@@ -20,4 +20,9 @@ module.exports = {
         APPROVED: `approved`,
         REJECTED: `rejected`,
     },
+    IMAGE_DATABASE_URL: `./database/images`,
+    FILE_SIZE_MAX: 10485760, // 10 MB
+    ALLOWED_FILE_EXTENSIONS: [
+        `.jpg`, '.jpeg', `.png`, `.gif`, `.webp`,
+    ],
 };
