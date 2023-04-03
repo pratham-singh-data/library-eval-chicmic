@@ -6,7 +6,8 @@ const { registerUser,
     requestFriend,
     listRequests,
     approveRequest,
-    checkSentRequests, } = require('../controllers/userControllers');
+    checkSentRequests,
+    listUsers, } = require('../controllers/userControllers');
 const { validateBody, validateParams, } = require('../middlewares/validators');
 const { checkToken, } = require('../middlewares/checkToken');
 const { TOKEN_TYPES, } = require('../utils/constants');
@@ -25,6 +26,7 @@ userRouter.put(`/`, checkToken(TOKEN_TYPES.LOGIN),
 userRouter.get(`/requests`,
     checkToken(TOKEN_TYPES.LOGIN),
     listRequests);
+userRouter.get(`/list`, checkToken(TOKEN_TYPES.LOGIN), listUsers);
 userRouter.get(`/:id`,
     checkToken(TOKEN_TYPES.LOGIN),
     validateParams(soleIdValidator),

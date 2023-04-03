@@ -1,7 +1,8 @@
 const { sign, } = require('jsonwebtoken');
 const { SECRET_KEY, } = require('../../config');
 const { hashPassword, } = require('../helpers/hashPassword');
-const { generateLocalSendResponse, } = require('../helpers/responder');
+const { generateLocalSendResponse,
+    sendResponse, } = require('../helpers/responder');
 const { findOneInUsers,
     saveDocumentInUsers,
     saveDocumentInTokens,
@@ -11,7 +12,8 @@ const { findOneInUsers,
     findOneInFriends,
     runAggregateOnFriends,
     findFromFriendsById,
-    updateInFriendsById, } = require('../services');
+    updateInFriendsById,
+    findInUsers, } = require('../services');
 const { TOKEN_EXPIRY_TIME, TOKEN_TYPES, } = require('../utils/constants');
 const { Types: { ObjectId, }, } = require(`mongoose`);
 const { EMAIL_ALREADY_IN_USE,
@@ -414,6 +416,34 @@ async function checkSentRequests(req, res, next) {
     }
 }
 
+/** List all users (to add as friends)
+ * @param {Request} req Express request object
+ * @param {Response} res Express response object
+ * @param {Function} next Express next function
+ */
+async function listUsers(req, res, next) {
+    const { headers: { token, }, } = req;
+
+    try {
+        const data = await findInUsers({
+            _id: {
+                $ne: token.id,
+            },
+        }, {
+            _id: true,
+            name: true,
+            profilePicture: true,
+        });
+
+        sendResponse(res, {
+            statusCode: 200,
+            data,
+        });
+    } catch (err) {
+        next(err);
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
@@ -423,4 +453,5 @@ module.exports = {
     listRequests,
     approveRequest,
     checkSentRequests,
+    listUsers,
 };
